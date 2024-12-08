@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Assistant</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        #response { margin-top: 20px; }
+        #db_response { margin-top: 10px; color: #555; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Search Assistant</h1>
+        <p>Enter your query below and get both OpenAI and database responses:</p>
+        <form id="query-form">
+            <input type="text" id="user-input" placeholder="Enter your query..." style="width: 100%; padding: 10px;" required>
+            <button type="submit" style="padding: 10px; margin-top: 10px;">Submit</button>
+        </form>
+        
+        <div id="response">
+            <p><strong>Bot Response:</strong> <span id="bot-response"></span></p>
+            <p><strong>Database Info:</strong> <span id="db-response"></span></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("query-form").addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const userInput = document.getElementById("user-input").value;
+            
+            const response = await fetch("/get_response", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: `user_input=${encodeURIComponent(userInput)}`
+            });
+
+            const data = await response.json();
+            
+            if (data.error) {
+                document.getElementById("bot-response").textContent = data.error;
+                document.getElementById("db-response").textContent = "";
+            } else {
+                document.getElementById("bot-response").textContent = data.bot_response;
+                document.getElementById("db-response").textContent = data.db_response;
+            }
+        });
+    </script>
+</body>
+</html>
